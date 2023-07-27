@@ -1,53 +1,71 @@
 "use client";
-
-import React, { useState } from "react";
-import firebase from "../../../firebase"; // Path to your firebase config file
+import React, { useState, useContext } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import signIn from "@/firebase/signin";
 
 function LoginPage() {
-	const [hotelId, setHotelId] = useState("");
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+
+	const router = useRouter();
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		try {
-			// Replace this part with the actual backend service that validates the HotelID
-			// and returns the associated email and password.
-			const response = await fetch(`/api/validateHotelId?hotelId=${hotelId}`);
-			const { email, password } = await response.json();
+		const { error } = await signIn(email, password);
 
-			await firebase.auth().signInWithEmailAndPassword(email, password);
-			alert("Logged in successfully!");
-		} catch (error) {
+		if (error) {
 			console.error(error);
-			alert("Failed to log in with the provided Hotel ID.");
+			alert("Failed to log in with the provided email and password.");
+		} else {
+			router.push(`/profile/${uid}`);
 		}
 	};
 
 	return (
-		<div className="flex items-center justify-center min-h-screen bg-blue-900">
-			<form
-				onSubmit={handleSubmit}
-				className="w-full max-w-sm p-6 m-4 bg-blue-800 rounded"
-			>
-				<div className="mb-4">
-					<label className="block mb-2 text-sm font-bold text-blue-200">
-						Hotel ID:
-					</label>
-					<input
-						type="text"
-						value={hotelId}
-						onChange={(e) => setHotelId(e.target.value)}
-						className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
-					/>
-				</div>
-				<div className="flex items-center justify-between">
-					<button
-						type="submit"
-						className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline"
-					>
-						Log in
-					</button>
-				</div>
+		<div className="flex flex-col items-center justify-center min-h-screen bg-white">
+			<div className="mb-8">
+				<Image
+					src="/eloxlogo.webp" // Path to your logo
+					alt="Logo"
+					width={100} // Adjust these values accordingly
+					height={100}
+				/>
+			</div>
+			<h2 className="mb-2 text-2xl font-bold text-blue-900">
+				Log in to your account
+			</h2>
+			<span className="mb-4 text-gray-500">
+				Dont have an account?{" "}
+				<a href="/register" className="text-blue-500 underline">
+					Sign Up
+				</a>
+			</span>
+			<span className="mb-4 text-gray-500">Or with email and password</span>
+			<form onSubmit={handleSubmit} className="flex flex-col">
+				<input
+					type="email"
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+					className="p-2 mb-4 text-gray-700 border border-gray-300 rounded"
+					placeholder="Email Address"
+					required
+				/>
+				<input
+					type="password"
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+					className="p-2 mb-4 text-gray-700 border border-gray-300 rounded"
+					placeholder="Password"
+					required
+				/>
+				<button
+					type="submit"
+					className="px-4 py-2 text-white bg-blue-700 rounded shadow"
+				>
+					Submit
+				</button>
 			</form>
 		</div>
 	);

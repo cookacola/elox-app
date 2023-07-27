@@ -1,10 +1,16 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Link from "next/link";
+import { useAuthContext } from "@/context/AuthContext";
+import signOutUser from "@/firebase/signout";
+
+function SignOutButton() {
+	return <button onClick={() => signOutUser()}>Sign Out</button>;
+}
 
 const Header = () => {
 	const [isOpen, setIsOpen] = useState(false);
-
+	const { user } = useAuthContext();
 	return (
 		<header className="text-white bg-blue-900">
 			<nav className="container flex flex-wrap items-center justify-between p-5 mx-auto">
@@ -55,12 +61,24 @@ const Header = () => {
 						>
 							Contact
 						</Link>
-						<Link
-							href="/login"
-							className="inline-block px-4 py-2 font-bold text-white bg-blue-500 rounded cursor-pointer hover:bg-blue-700"
-						>
-							Login
-						</Link>
+						{user ? (
+							<>
+								<Link
+									href={`/profile/${user.uid}`}
+									className="inline-block px-4 py-2 text-white rounded cursor-pointer hover:bg-blue-700"
+								>
+									Profile
+								</Link>
+								<SignOutButton />
+							</>
+						) : (
+							<Link
+								href="/login"
+								className="inline-block px-4 py-2 font-bold text-white bg-blue-500 rounded cursor-pointer hover:bg-blue-700"
+							>
+								Login
+							</Link>
+						)}
 					</div>
 				</div>
 			</nav>
